@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>理化 (第3冊 6-4 週期表)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            /* 理化科學風配色 */
+            --primary-color: #0056b3;   /* 實驗藍 (科技/專業) */
+            --secondary-color: #00c4cc; /* 螢光青 (能量/反應) */
+            --bg-color: #f0f4f8;        /* 實驗室白 (乾淨背景) */
+            --text-color: #2c3e50;      /* 深鐵灰 */
+            --accent-color: #e74c3c;    /* 警示紅 */
+            --correct-color: #2ecc71;   /* 成功綠 */
+            --wrong-color: #e74c3c;     /* 錯誤紅 */
+            --locked-color: #95a5a6;    /* 金屬灰 */
+            --music-btn-color: #34495e; /* 儀器黑 */
+            --favorite-color: #e056fd;  /* 紫色 (稀有氣體感) */
+            --player-bg: #ffffff;       /* 播放器背景 */
+            --player-border: #bdc3c7;   /* 邊框 */
+        }
+
+        body { 
+            font-family: 'Noto Sans TC', "Microsoft JhengHei", Arial, sans-serif; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            /* 增加頂部內距，配合加高的播放器列 */
+            padding: 130px 20px 20px 20px; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            /* 六角形分子結構背景紋理 */
+            background-image: 
+                radial-gradient(var(--secondary-color) 1px, transparent 1px),
+                radial-gradient(var(--secondary-color) 1px, transparent 1px);
+            background-position: 0 0, 25px 25px;
+            background-size: 50px 50px;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        h1 { 
+            font-size: 2.5em; 
+            color: var(--primary-color); 
+            text-align: center; 
+            margin-top: 0; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
+            font-weight: bold; 
+            letter-spacing: 1px;
+        }
+        h2, h3 { color: #2c3e50; text-align: center; }
+
+        /* --- 音樂播放器固定列 --- */
+        #music-player-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px; 
+            background-color: var(--player-bg);
+            border-bottom: 3px solid var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0,86,179,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 10000;
+            transition: height 0.3s ease;
+        }
+
+        .player-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1; 
+            justify-content: flex-start;
+        }
+
+        .player-icon {
+            width: 36px;
+            height: 36px;
+            background-color: #eaf2f8;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        #yt-wrapper {
+            position: absolute; 
+            left: 50%;          
+            top: 50%;           
+            transform: translate(-50%, -50%); 
+            width: 144px; 
+            height: 81px;
+            background: #000;
+            border: 2px solid var(--text-color);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+        
+        .yt-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent; z-index: 20; cursor: default;
+        }
+        
+        #yt-wrapper.video-hidden {
+            width: 0; height: 0; border: none; opacity: 0; margin: 0;
+        }
+
+        #yt-player { width: 100%; height: 100%; }
+
+        .player-right { display: flex; align-items: center; justify-content: flex-end; flex: 1; }
+        .player-controls { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+
+        .ctrl-btn {
+            background: none; border: none; cursor: pointer; color: #7f8c8d;
+            font-size: 1.4em; transition: color 0.2s; padding: 5px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .ctrl-btn:hover { color: var(--primary-color); }
+        .ctrl-btn.active { color: var(--primary-color); text-shadow: 0 0 5px rgba(0, 86, 179, 0.3); }
+
+        .play-pause-btn {
+            width: 42px; height: 42px; background-color: #ecf0f1; border-radius: 50%;
+            font-size: 1.1em; color: #2c3e50;
+        }
+        .play-pause-btn:hover { background-color: #bdc3c7; }
+        
+        .volume-container { display: flex; align-items: center; gap: 5px; margin: 0 5px; }
+        .volume-icon { font-size: 1.1em; color: #7f8c8d; cursor: default; }
+        .volume-slider {
+            width: 60px; cursor: pointer; height: 4px; border-radius: 2px;
+            accent-color: var(--primary-color); 
+        }
+
+        .ctrl-separator { width: 1px; height: 20px; background-color: #bdc3c7; margin: 0 2px; }
+
+        .mode-btn {
+            display: flex; align-items: center; gap: 5px; font-size: 0.85em;
+            background-color: #fff; border: 1px solid #bdc3c7; padding: 5px 10px;
+            border-radius: 20px; cursor: pointer; color: #7f8c8d; transition: all 0.2s; white-space: nowrap;
+        }
+        .mode-btn:hover { background-color: #f0f0f0; border-color: var(--primary-color); color: var(--primary-color); }
+
+        /* --- 主要容器 (科技面板風格) --- */
+        .quiz-container { 
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0, 86, 179, 0.15); 
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-top: 6px solid var(--primary-color);
+            position: relative;
+            overflow: hidden;
+            min-height: 500px;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 首頁背景樣式 (使用 elements.jpg) */
+        #welcome-screen {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('elements.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            padding: 30px 20px;
+            border: 1px solid #e1e8ed;
+        }
+
+        /* --- 裝飾性元素 (科技角標) --- */
+        .quiz-container::before {
+            content: " ";
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-top: 50px solid var(--secondary-color); border-right: 50px solid transparent;
+            opacity: 0.5;
+        }
+        .quiz-container::after {
+            content: " ";
+            position: absolute; bottom: 0; right: 0; width: 0; height: 0;
+            border-bottom: 50px solid var(--primary-color); border-left: 50px solid transparent;
+            opacity: 0.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+
+        /* --- 按鈕樣式 (扁平化科技風) --- */
+        .btn {
+            background-color: var(--primary-color); color: #FFF; border: none;
+            padding: 12px 28px; font-size: 1.2em; border-radius: 30px;
+            cursor: pointer; transition: 0.3s; 
+            box-shadow: 0 4px 10px rgba(0, 86, 179, 0.3);
+            font-family: inherit; font-weight: bold; margin: 8px; display: inline-block;
+            letter-spacing: 1px;
+            border: 2px solid transparent;
+        }
+        .btn:hover { transform: translateY(-3px); background-color: #004494; box-shadow: 0 6px 15px rgba(0, 86, 179, 0.4); }
+        .btn:active { transform: translateY(1px); box-shadow: none; }
+        
+        .btn-green { background-color: var(--correct-color); box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
+        .btn-green:hover { background-color: #27ae60; }
+        
+        .btn-red { background-color: var(--wrong-color); box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3); }
+        .btn-red:hover { background-color: #c0392b; }
+        
+        .btn-gray { background-color: #95a5a6; box-shadow: 0 4px 10px rgba(149, 165, 166, 0.3); }
+        .btn-gray:hover { background-color: #7f8c8d; }
+        
+        .btn-blue { background-color: #3498db; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
+        .btn-blue:hover { background-color: #2980b9; }
+        
+        .btn-pink { background-color: var(--favorite-color); box-shadow: 0 4px 10px rgba(224, 86, 253, 0.3); }
+        .btn-pink:hover { background-color: #be2edd; }
+        
+        .btn-sm { padding: 8px 16px; font-size: 0.95em; border-radius: 20px; margin: 0 2px;}
+        
+        /* --- 輸入框與快速登入 --- */
+        input[type="text"] {
+            padding: 12px; font-size: 1.3em; 
+            border: 2px solid #bdc3c7; background-color: #fff;
+            border-radius: 30px; margin: 15px; font-family: inherit; text-align: center; width: 80%;
+            color: var(--text-color); transition: border-color 0.3s;
+        }
+        input[type="text"]:focus { border-color: var(--primary-color); outline: none; }
+
+        .quick-login-area {
+            margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+        }
+        .user-tag {
+            background: #fff; border: 1px solid #bdc3c7;
+            padding: 6px 15px; border-radius: 20px;
+            cursor: pointer; font-size: 1em; transition: 0.2s;
+            color: #7f8c8d; display: flex; align-items: center; gap: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .user-tag:hover { border-color: var(--primary-color); color: var(--primary-color); transform: translateY(-2px); }
+        
+        .delete-user { 
+            font-size: 0.9em; cursor: pointer; padding: 2px 6px;
+            border-radius: 50%; background: #eee; transition: 0.2s; color: #aaa;
+        }
+        .delete-user:hover { background: var(--wrong-color); color: white; }
+
+        /* --- 角色選擇區樣式 --- */
+        .avatar-selection { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .avatar-option {
+            width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff;
+            cursor: pointer; transition: 0.3s; object-fit: cover; background: #FFF; padding: 2px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .avatar-option:hover { transform: scale(1.1); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .avatar-option.selected {
+            border-color: var(--primary-color); 
+            transform: scale(1.1); 
+            box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.2);
+        }
+
+        /* --- 關卡地圖樣式 (元素週期表風格) --- */
+        #level-screen {
+            background-image: url('elements.jpg'); 
+            background-color: #ecf0f1; 
+            background-size: cover; 
+            background-position: center;
+            border: 1px solid #bdc3c7; 
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 500px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 增加一個半透明遮罩讓背景圖不要太搶眼 */
+        #level-screen::before {
+            content: "";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: -1;
+            border-radius: 10px;
+        }
+
+        @media (orientation: portrait) {
+            #level-screen { min-height: 80vh; background-position: center top; }
+            .level-map-container { gap: 30px; margin-top: 40px; }
+        }
+
+        .level-map-container { display: flex; flex-direction: column; align-items: center; gap: 15px; margin: 20px 0; }
+        .level-row { display: flex; justify-content: center; align-items: center; gap: 20px; }
+        .level-row.reverse { flex-direction: row-reverse; }
+        .level-wrapper { display: flex; align-items: center; position: relative; }
+        
+        .map-avatar {
+            position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 60px; z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+            animation: float 2s infinite ease-in-out;
+            background: white; border-radius: 50%; padding: 2px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* 關卡按鈕改為六角形或圓形，這裡維持圓形但風格更現代 */
+        .level-btn {
+            background-color: #fff; 
+            border: 4px solid var(--primary-color);
+            border-radius: 15px; /* 稍微圓角矩形，像元素方塊 */
+            width: 90px;
+            height: 90px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 #bdc3c7;
+            position: relative;
+            z-index: 2;
+        }
+        .level-title { white-space: nowrap; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        .level-btn:hover:not(:disabled) { background-color: #eaf2f8; transform: translateY(-3px); box-shadow: 0 6px 0 #bdc3c7; }
+        .level-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+        .level-btn:disabled { background-color: #ecf0f1; border-color: #bdc3c7; color: #bdc3c7; cursor: not-allowed; box-shadow: none; }
+        .level-score { font-size: 0.8em; color: var(--correct-color); font-weight: bold; }
+
+        .arrow-icon {
+            font-size: 2em; color: var(--secondary-color); margin: 0 5px;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.1); 
+            z-index: 1; display: block;
+        }
+        .arrow-right { animation: pulseRight 2s infinite; }
+        .arrow-left { animation: pulseLeft 2s infinite; transform: scaleX(-1); }
+        .arrow-down { animation: pulseDown 2s infinite; font-size: 2.5em; line-height: 0.5; margin: -5px 0; }
+        
+        @keyframes pulseRight { 0%, 100% { transform: translateX(0); opacity: 0.6; } 50% { transform: translateX(5px); opacity: 1; } }
+        @keyframes pulseLeft { 0%, 100% { transform: translateX(0) scaleX(-1); opacity: 0.6; } 50% { transform: translateX(-5px) scaleX(-1); opacity: 1; } }
+        @keyframes pulseDown { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(5px); opacity: 1; } }
+
+        .row-connector {
+            width: 100%; display: flex; height: 40px; align-items: center;
+            justify-content: flex-end; padding-right: 45px; box-sizing: border-box;
+        }
+        .row-connector.left { justify-content: flex-start; padding-left: 45px; padding-right: 0; }
+
+        /* --- 元素圖鑑樣式 (Collection) --- */
+        .collection-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px; padding: 10px;
+        }
+        .card-item {
+            position: relative; border-radius: 10px; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            aspect-ratio: 2/3; cursor: pointer; transition: 0.3s;
+            background: #fff; border: 1px solid #e1e8ed;
+        }
+        .card-item:hover { transform: translateY(-5px); z-index: 5; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border-color: var(--primary-color); }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.3s; }
+        
+        .card-item.locked .card-img { filter: grayscale(100%) opacity(0.3); }
+        .card-item.locked { cursor: default; background: #f0f4f8; }
+        
+        .card-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #bdc3c7;
+        }
+        .card-lock-icon { font-size: 3em; margin-bottom: 5px; opacity: 0.8;}
+        .card-label { 
+            position: absolute; bottom: 0; width: 100%; background: rgba(0, 86, 179, 0.9);
+            color: #fff; text-align: center; font-size: 0.9em; padding: 8px 0; font-weight: bold;
+        }
+
+        /* 彈窗樣式 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2000; display: none;
+            justify-content: center; align-items: center; animation: fadeIn 0.3s;
+        }
+        .modal-content {
+            background: #fff; padding: 20px; border-radius: 15px;
+            max-width: 90%; max-height: 90%; position: relative; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .modal-img { max-width: 100%; max-height: 80vh; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+        .modal-close {
+            position: absolute; top: -15px; right: -15px;
+            background: var(--wrong-color); color: white; border: 2px solid white;
+            width: 35px; height: 35px; border-radius: 50%; font-size: 1.5em;
+            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        @media (max-width: 600px) {
+            .level-row, .level-row.reverse { flex-direction: column; gap: 0; }
+            .level-wrapper { flex-direction: column; margin-bottom: 10px; }
+            .arrow-right, .arrow-left, .row-connector { display: none; }
+            .level-wrapper::after {
+                content: '⬇'; font-size: 2em; color: var(--secondary-color);
+                animation: pulseDown 2s infinite; display: block; margin: 5px 0;
+            }
+            .level-wrapper:last-child::after { display: none; }
+            .map-avatar { top: 20px; left: -60px; transform: none; }
+            
+            #music-player-bar { padding: 0 5px; height: 60px; }
+            body { padding-top: 80px; }
+            
+            #yt-wrapper {
+                position: fixed; bottom: 10px; right: 10px; top: auto; left: auto; transform: none;
+                width: 120px; height: 67px; z-index: 10001; display: none;
+            }
+            #yt-wrapper.mobile-visible { display: block; }
+            .player-controls { gap: 5px; }
+            .volume-slider { width: 50px; }
+            #mode-text { display: none; }
+            .ctrl-separator { display: none; }
+            .player-right { display: flex; flex: 1; justify-content: flex-end; } 
+            .player-left { flex: 0; margin-right: 5px;}
+        }
+
+        /* --- 題目樣式 --- */
+        .question-box { 
+            background-color: #fff; 
+            border-left: 6px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 25px; margin-bottom: 25px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e1e8ed;
+        }
+        .question-text { font-size: 1.6em; font-weight: 600; line-height: 1.6; color: #2c3e50; }
+        
+        .question-img { 
+            max-width: 100%; max-height: 250px; width: auto; object-fit: contain;
+            display: block; margin: 15px auto; border: 1px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); border-radius: 8px; 
+        }
+
+        .option-btn { 
+            width: 100%; padding: 18px; margin: 12px 0; text-align: left; 
+            background: #fff; border: 2px solid #e1e8ed; border-radius: 12px; 
+            cursor: pointer; transition: 0.2s; font-size: 1.4em; line-height: 1.4;
+            font-family: inherit; position: relative; color: #555;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .option-btn:hover { background-color: #f7f9fc; border-color: var(--primary-color); transform: translateX(5px); }
+        .correct { background-color: #d4edda !important; border-color: var(--correct-color) !important; color: #155724; font-weight:bold; }
+        .wrong { background-color: #f8d7da !important; border-color: var(--wrong-color) !important; color: #721c24; }
+
+        .progress-container { width: 100%; background-color: #e1e8ed; border-radius: 10px; margin: 15px 0; height: 12px; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: var(--secondary-color); width: 0%; transition: width 0.3s ease; }
+
+        .explanation-box, .review-item {
+            margin-top: 20px; padding: 20px; background-color: #eaf2f8;
+            border-left: 5px solid var(--secondary-color); border-radius: 5px; 
+            color: #2c3e50; font-size: 1.2em; text-align: left; line-height: 1.6;
+        }
+        .review-list { list-style: none; padding: 0; }
+        .review-item { margin-bottom: 25px; background: white; border: 1px solid #e1e8ed; }
+        .tag { padding: 4px 10px; border-radius: 5px; font-size: 0.8em; color: white; margin-right: 8px; vertical-align: middle;}
+        .tag-correct { background-color: var(--correct-color); }
+        .tag-wrong { background-color: var(--wrong-color); }
+        
+        #history-list { list-style: none; padding: 0; }
+        #history-list li { 
+            background: white; margin: 15px 0; padding: 20px; border-radius: 10px; 
+            border: 1px solid #e1e8ed; display: flex; justify-content: space-between; 
+            align-items: center; flex-wrap: wrap; font-size: 1.2em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .quiz-header {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; margin-bottom: 15px; border-bottom: 1px solid #e1e8ed;
+            padding-bottom: 10px;
+        }
+        .header-controls { display: flex; align-items: center; gap: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部固定音樂播放器 -->
+    <div id="music-player-bar">
+        <div class="player-left">
+            <div class="player-icon">🎵</div>
+        </div>
+        
+        <div id="yt-wrapper">
+            <div id="yt-player"></div>
+            <div class="yt-overlay"></div>
+        </div>
+        
+        <div class="player-right">
+            <div class="player-controls">
+                <button class="ctrl-btn" onclick="prevTrack()" title="上一首">⏮</button>
+                <button id="main-play-btn" class="ctrl-btn play-pause-btn" onclick="togglePlay()" title="播放/暫停">▶</button>
+                <button class="ctrl-btn" onclick="nextTrack()" title="下一首">⏭</button>
+                
+                <div class="ctrl-separator"></div>
+
+                <div class="volume-container" title="調整音量">
+                    <span class="volume-icon">🔊</span>
+                    <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" step="5" value="30" oninput="setVolume(this.value)">
+                </div>
+                
+                 <div class="ctrl-separator"></div>
+
+                 <button id="toggle-video-btn" class="ctrl-btn active" onclick="toggleVideoDisplay()" title="顯示/隱藏畫面">👁️</button>
+                
+                <div class="ctrl-separator"></div>
+
+                <button id="mode-btn" class="mode-btn" onclick="changeMode()" title="切換播放模式">
+                    <span id="mode-icon">🔁</span>
+                    <span id="mode-text">全部循環</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+
+        <div id="welcome-screen" class="fade-in">
+            <h1>理化 (第3冊 6-4 週期表)</h1>
+            <div style="font-size: 5em; margin: 30px; text-align:center;">⚛️🧪🔬🧬</div>
+            <p style="font-size: 1.5em; text-align: center; color: #34495e;">歡迎來到化學實驗室。<br>請輸入代號，準備進行元素分析！</p>
+            
+            <div style="text-align:center;">
+                <input type="text" id="username" placeholder="請輸入研究員代號..." />
+            </div>
+            
+            <div class="avatar-selection">
+                <img src="images/Chris.png" class="avatar-option selected" onclick="selectAvatar('Chris.png', this)" title="Chris">
+                <img src="images/Louis.png" class="avatar-option" onclick="selectAvatar('Louis.png', this)" title="Louis">
+            </div>
+
+            <div id="quick-login-area" class="quick-login-area"></div>
+
+            <br><br>
+            <div style="text-align:center;">
+                <button class="btn" onclick="loginAndStart()">🚀 進入實驗室</button>
+            </div>
+        </div>
+
+        <div id="level-screen" style="display: none; text-align: center;" class="fade-in">
+            <div style="background: rgba(255,255,255,0.9); padding:10px 20px; border-radius:30px; display:inline-block; margin-bottom:20px; border: 1px solid #bdc3c7; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h2 style="margin:0; color: #2c3e50; font-size: 1.4em;">🗺️ 元素探索地圖</h2>
+                <p style="font-size: 1.1em; margin:5px; color: #555;">
+                    <img id="user-avatar-display" src="" style="width:30px; vertical-align:middle; border-radius:50%; border:1px solid #bdc3c7;">
+                    研究員：<span id="display-name" style="color:var(--primary-color); font-weight:bold;"></span>
+                </p>
+            </div>
+            
+            <div id="level-map" class="level-map-container"></div>
+            
+            <div style="margin-top: 30px; background: rgba(255,255,255,0.9); padding:20px; border-radius:15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; border: 1px solid #e1e8ed;">
+                <button id="btn-mistake" class="btn btn-red" onclick="startQuiz('mistake')" style="display:none;">📕 實驗筆記 (<span id="mistake-count">0</span>)</button>
+                <button id="btn-favorite" class="btn btn-pink" onclick="startQuiz('favorite')" style="display:none;">⭐ 重點收藏 (<span id="favorite-count">0</span>)</button>
+                <button class="btn btn-blue" onclick="showCollection()">🧬 元素圖鑑</button>
+                <button class="btn btn-green" onclick="showHistory()">🏆 榮譽榜</button>
+                
+                <button class="btn btn-gray" onclick="logout()">🚪 離開實驗室</button>
+            </div>
+        </div>
+
+        <div id="quiz-content" style="display: none;" class="fade-in">
+            <div class="quiz-header">
+                <h3 id="level-title" style="margin:0; font-size: 1.5em; color: #2c3e50;">實驗 X</h3>
+                
+                <div class="header-controls">
+                    <button id="btn-toggle-favorite" class="btn btn-sm" style="background-color:#FFF; border:2px solid var(--favorite-color); color:var(--favorite-color); font-size:1.2em;" onclick="toggleFavorite()" title="收藏/取消">☆</button>
+                    <button class="btn btn-gray btn-sm" style="margin:0;" onclick="exitQuiz()">🏠 返回地圖</button>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div style="text-align: right; font-size: 1.1em; color: #555; font-weight: bold;">
+                進度: <span id="current-q-num">1</span> / <span id="total-q-num">20</span>
+            </div>
+
+            <div id="question-container" class="fade-in">
+                <div class="question-box">
+                    <div id="question-text" class="question-text">試題載入中...</div>
+                    <img id="question-image" class="question-img" style="display: none;" />
+                </div>
+                <ul id="options-list" style="list-style: none; padding: 0;"></ul>
+            </div>
+            
+            <div id="explanation" class="explanation-box" style="display: none;">
+                <strong>💡 原理自習：</strong> <span id="explanation-text"></span>
+            </div>
+
+            <button id="next-btn" class="btn" style="display: none; width: 100%; margin-top: 25px;" onclick="nextQuestion()">下一個實驗 ➡️</button>
+        </div>
+
+        <div id="score-box" style="display: none; text-align: center;" class="fade-in">
+            <h2 style="color: #2c3e50;">🎉 實驗結束！</h2>
+            <p style="font-size: 2em; margin: 10px 0; font-weight: bold; color: #555;">研究員：<span id="final-name"></span></p>
+            <p style="font-size: 4em; margin: 10px 0; font-weight: bold; color: var(--accent-color); font-family: 'Arial', sans-serif;"><span id="final-score"></span> 分</p>
+            <div id="score-comment" style="font-size: 1.5em; margin-bottom: 25px; color: #e67e22;"></div>
+            <div id="unlock-msg" style="color: var(--correct-color); font-weight: bold; display:none; margin-bottom: 15px; font-size: 1.5em;">🔓 新實驗權限已解鎖！</div>
+            
+            <div id="new-card-alert" style="display:none; background:#eaf2f8; border:2px solid var(--secondary-color); border-radius:15px; padding:15px; margin: 15px 0;">
+                 <h3 style="margin:5px; color: var(--primary-color);">✨ 發現新元素！ ✨</h3>
+                 <p style="font-size: 1.2em;">快去「元素圖鑑」查看分析報告！</p>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <button class="btn" onclick="goToLevelScreen()">🗺️ 返回地圖</button>
+                <button class="btn btn-green" onclick="toggleReview()">📝 實驗檢討</button>
+            </div>
+
+            <div id="full-review-area" style="display: none; margin-top: 40px;">
+                <h3>🔍 實驗回顧</h3>
+                <ul id="review-list" class="review-list"></ul>
+                <button class="btn" onclick="goToLevelScreen()">🗺️ 返回地圖</button>
+            </div>
+        </div>
+
+        <div id="history-screen" style="display: none;" class="fade-in">
+            <h2>🏆 榮譽榜 (研究紀錄)</h2>
+            <ul id="history-list"></ul>
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn" onclick="goToLevelScreen()">🗺️ 返回地圖</button>
+            </div>
+        </div>
+        
+        <div id="history-detail-screen" style="display: none;" class="fade-in">
+            <h3>📜 歷史實驗回顧</h3>
+            <p style="font-size: 1.2em;">時間：<span id="history-date"></span> | 成績：<span id="history-score"></span></p>
+            <ul id="history-review-list" class="review-list"></ul>
+            <div style="text-align:center;">
+                <button class="btn" onclick="showHistory()">⬅️ 返回列表</button>
+            </div>
+        </div>
+
+        <div id="collection-screen" style="display: none;" class="fade-in">
+            <h2>🧬 元素圖鑑</h2>
+            <p style="text-align:center; color:#555; font-size: 1.2em;">考核達 80 分即可解鎖該關卡元素資料！</p>
+            <div id="collection-grid" class="collection-grid"></div>
+            <div style="text-align:center; margin-top:20px;">
+                <button class="btn" onclick="goToLevelScreen()">🗺️ 返回地圖</button>
+            </div>
+        </div>
+
+        <div id="card-modal" class="modal-overlay" onclick="closeCardModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="closeCardModal()">×</button>
+                <img id="modal-img" class="modal-img" src="">
+                <h3 id="modal-title" style="margin-top:10px; color: #2c3e50;"></h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame API Script -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        // 調整為適合大量題目的關卡配置 (每關20題，依題目量調整)
+        // 第1關到第5關為20題，第6關為14題，共114題
+        const LEVEL_CONFIG = [20, 20, 20, 20, 20, 14];
+        const ITEMS_PER_ROW = 4;
+        
+        // YouTube 播放清單 (ID)
+        const YOUTUBE_PLAYLIST = [
+            'aGZk0nEBWv4' 
+        ];
+        
+        // 播放模式
+        const MODES = [
+            { name: '全部循環', icon: '🔁' },
+            { name: '單曲循環', icon: '🔂' },
+            { name: '隨機播放', icon: '🔀' }
+        ];
+        
+        // 設定資料儲存前綴，改為理化相關，並更新為 6-4
+        const APP_PREFIX = 'Nature3-6-4_';
+
+        let player; 
+        let isPlayerReady = false;
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let playMode = 0; 
+        let isVideoVisible = true; 
+        
+        let allQuestions = [], currentQuizQuestions = [], currentQuestionIndex = 0, score = 0;
+        let userName = "", currentLevel = 1, userAnswers = {}, isMistakeMode = false, isFavoriteMode = false;
+        let currentAvatar = "Chris.png"; 
+        
+        let audioCorrect = new Audio('sounds/correct.mp3'); audioCorrect.volume = 0.4;
+        let audioFail = new Audio('sounds/fail.mp3'); audioFail.volume = 0.4;
+        
+        // --- YouTube API 整合函式 ---
+        
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('yt-player', {
+                height: '100%',
+                width: '100%',
+                videoId: YOUTUBE_PLAYLIST[currentTrackIndex],
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0, 
+                    'disablekb': 1,
+                    'fs': 0,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            isPlayerReady = true;
+            const vol = document.getElementById('volume-slider').value;
+            player.setVolume(vol);
+            updateMusicUI();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                isPlaying = true;
+            } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
+                isPlaying = false;
+            }
+            if (event.data == YT.PlayerState.ENDED) {
+                handleTrackEnd();
+            }
+            updateMusicUI();
+        }
+
+        function updateMusicUI() {
+            const playBtn = document.getElementById('main-play-btn');
+            playBtn.innerText = isPlaying ? '⏸' : '▶';
+            document.getElementById('mode-icon').innerText = MODES[playMode].icon;
+            document.getElementById('mode-text').innerText = MODES[playMode].name;
+        }
+
+        function toggleVideoDisplay() {
+            const wrapper = document.getElementById('yt-wrapper');
+            const btn = document.getElementById('toggle-video-btn');
+            const isMobile = window.innerWidth <= 600;
+
+            if (isMobile) {
+                wrapper.classList.toggle('mobile-visible');
+                isVideoVisible = wrapper.classList.contains('mobile-visible');
+            } else {
+                wrapper.classList.toggle('video-hidden');
+                isVideoVisible = !wrapper.classList.contains('video-hidden');
+            }
+
+            if (isVideoVisible) {
+                btn.classList.add('active');
+                btn.innerText = '👁️';
+                btn.title = "隱藏畫面";
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = '🕶️';
+                btn.title = "顯示畫面";
+            }
+        }
+
+        function playMusic() { 
+            if(!isPlayerReady) return;
+            player.playVideo();
+        }
+
+        function togglePlay() { 
+            if(!isPlayerReady) return;
+            if (isPlaying) { 
+                player.pauseVideo();
+            } else { 
+                player.playVideo();
+            }
+        }
+        
+        function setVolume(val) {
+            if(isPlayerReady) player.setVolume(val);
+        }
+
+        function prevTrack() {
+            if(!isPlayerReady) return;
+            if (player.getCurrentTime() > 3) {
+                player.seekTo(0);
+                return;
+            }
+
+            if (playMode === 2) { 
+                 let newIndex = currentTrackIndex;
+                 while (newIndex === currentTrackIndex && YOUTUBE_PLAYLIST.length > 1) {
+                     newIndex = Math.floor(Math.random() * YOUTUBE_PLAYLIST.length);
+                 }
+                 currentTrackIndex = newIndex;
+            } else {
+                currentTrackIndex = (currentTrackIndex - 1 + YOUTUBE_PLAYLIST.length) % YOUTUBE_PLAYLIST.length;
+            }
+            loadAndPlayTrack();
+        }
+
+        function nextTrack() { 
+            if(!isPlayerReady) return;
+            if (playMode === 2) { 
+                let newIndex = currentTrackIndex;
+                while (newIndex === currentTrackIndex && YOUTUBE_PLAYLIST.length > 1) {
+                    newIndex = Math.floor(Math.random() * YOUTUBE_PLAYLIST.length);
+                }
+                currentTrackIndex = newIndex;
+            } else {
+                currentTrackIndex = (currentTrackIndex + 1) % YOUTUBE_PLAYLIST.length; 
+            }
+            loadAndPlayTrack();
+        }
+        
+        function loadAndPlayTrack() {
+            player.loadVideoById(YOUTUBE_PLAYLIST[currentTrackIndex]);
+        }
+        
+        function handleTrackEnd() {
+            if (playMode === 1) { 
+                player.seekTo(0);
+                player.playVideo();
+            } else {
+                nextTrack(); 
+            }
+        }
+
+        function changeMode() {
+            playMode = (playMode + 1) % MODES.length;
+            updateMusicUI();
+        }
+
+        fetch('questions.json').then(res => res.json()).then(data => { allQuestions = data; renderQuickLogin(); }).catch(e => console.error(e));
+
+        function getUserKey(key) { return APP_PREFIX + userName + '_' + key; }
+
+        function selectAvatar(filename, element) {
+            currentAvatar = filename;
+            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function getSavedUsers() { 
+            return JSON.parse(localStorage.getItem(APP_PREFIX + 'savedUsers')) || []; 
+        }
+
+        function renderQuickLogin() {
+            let users = getSavedUsers();
+            let container = document.getElementById('quick-login-area');
+            container.innerHTML = "";
+            if(users.length > 0) {
+                container.innerHTML = '<div style="width:100%; text-align:center; color:#7f8c8d; font-size:0.9em; margin-bottom:5px;">-- 歡迎回來 (快速登入) --</div>';
+                users.forEach(userObj => {
+                    let name = typeof userObj === 'string' ? userObj : userObj.name;
+                    let avatar = typeof userObj === 'string' ? 'Chris.png' : userObj.avatar; 
+                    let div = document.createElement('div');
+                    div.innerHTML = `<span class="user-tag" onclick="quickLogin('${name}', '${avatar}')"><img src="images/${avatar}" style="width:25px; height:25px; border-radius:50%; margin-right:5px; border:1px solid #ccc;">${name}<span class="delete-user" onclick="event.stopPropagation(); deleteUser('${name}')">×</span></span>`;
+                    container.appendChild(div);
+                });
+            }
+        }
+        function quickLogin(name, avatar) {
+            document.getElementById('username').value = name;
+            currentAvatar = avatar;
+            document.querySelectorAll('.avatar-option').forEach(el => {
+                if(el.getAttribute('onclick').includes(avatar)) el.classList.add('selected'); else el.classList.remove('selected');
+            });
+            loginAndStart();
+        }
+        function deleteUser(name) {
+            if (!confirm(`確定要刪除「${name}」的所有實驗數據嗎？\n(包含紀錄、錯題本)`)) return;
+            localStorage.removeItem(APP_PREFIX + name + '_mistakeBank');
+            localStorage.removeItem(APP_PREFIX + name + '_favoriteBank'); 
+            localStorage.removeItem(APP_PREFIX + name + '_quizHistory');
+            localStorage.removeItem(APP_PREFIX + name + '_quizProgress');
+            let users = getSavedUsers();
+            users = users.filter(u => (typeof u === 'string' ? u : u.name) !== name);
+            localStorage.setItem(APP_PREFIX + 'savedUsers', JSON.stringify(users));
+            renderQuickLogin();
+        }
+        function loginAndStart() {
+            const inputName = document.getElementById('username').value.trim();
+            if (!inputName) { alert("請輸入研究員代號！"); return; }
+            userName = inputName;
+            localStorage.setItem(APP_PREFIX + 'quizUserName', userName);
+            localStorage.setItem(APP_PREFIX + 'quizUserAvatar', currentAvatar);
+
+            let users = getSavedUsers();
+            users = users.filter(u => (typeof u === 'string' ? u : u.name) !== userName);
+            users.push({ name: userName, avatar: currentAvatar });
+            localStorage.setItem(APP_PREFIX + 'savedUsers', JSON.stringify(users));
+
+            if (!isPlaying && isPlayerReady) playMusic();
+            goToLevelScreen();
+        }
+
+        function getProgress() { 
+            return JSON.parse(localStorage.getItem(getUserKey('quizProgress'))) || { maxLevel: 1, levelScores: {} }; 
+        }
+        
+        function saveProgress(level, score) {
+            let progress = getProgress();
+            if (!progress.levelScores[level] || score > progress.levelScores[level]) progress.levelScores[level] = score;
+            if (score >= 70 && level === progress.maxLevel && level < LEVEL_CONFIG.length) progress.maxLevel++;
+            localStorage.setItem(getUserKey('quizProgress'), JSON.stringify(progress));
+        }
+
+        function goToLevelScreen() {
+            document.getElementById('display-name').innerText = userName;
+            document.getElementById('user-avatar-display').src = "images/" + currentAvatar;
+            document.querySelectorAll('.quiz-container > div').forEach(el => el.style.display = 'none');
+            document.getElementById('level-screen').style.display = 'block';
+            renderLevelMap(); 
+            updateMistakeButton();
+            updateFavoriteButton(); 
+        }
+
+        function renderLevelMap() {
+            const container = document.getElementById('level-map'); container.innerHTML = "";
+            const progress = getProgress();
+            let rows = [];
+            for (let i = 0; i < LEVEL_CONFIG.length; i += ITEMS_PER_ROW) rows.push(LEVEL_CONFIG.slice(i, i + ITEMS_PER_ROW));
+            rows.forEach((rowItems, rowIndex) => {
+                let rowDiv = document.createElement('div'); rowDiv.className = 'level-row';
+                let isReverse = (rowIndex % 2 !== 0); if (isReverse) rowDiv.classList.add('reverse');
+                let startLevelNum = rowIndex * ITEMS_PER_ROW + 1;
+                rowItems.forEach((_, itemIndex) => {
+                    let levelNum = startLevelNum + itemIndex;
+                    let wrapper = document.createElement('div'); wrapper.className = 'level-wrapper';
+                    let btn = document.createElement('button'); btn.className = 'level-btn';
+                    if (levelNum <= progress.maxLevel) {
+                        let bestScore = progress.levelScores[levelNum];
+                        let icon = bestScore >= 70 ? '🧪' : '⚗️';
+                        if (bestScore === 100) icon = '🔬'; else if (bestScore >= 90) icon = '⚛️';
+                        let scoreText = bestScore !== undefined ? `<div class="level-score">${bestScore}分</div>` : '<div class="level-score">未進行</div>';
+                        btn.innerHTML = `<div class="level-title">${icon} 實驗${levelNum}</div>${scoreText}`;
+                        btn.onclick = () => startQuiz('level', levelNum);
+                        if (levelNum === progress.maxLevel) {
+                            let avatarImg = document.createElement('img'); avatarImg.src = "images/" + currentAvatar; avatarImg.className = "map-avatar"; wrapper.appendChild(avatarImg);
+                        }
+                    } else {
+                        btn.disabled = true; btn.innerHTML = `<div class="level-title">🔒 實驗${levelNum}</div><div class="level-score" style="color:#bdc3c7">權限不足</div>`;
+                    }
+                    wrapper.appendChild(btn);
+                    if (itemIndex < rowItems.length - 1) {
+                        let arrow = document.createElement('div'); arrow.className = 'arrow-icon';
+                        if (isReverse) { arrow.innerHTML = '➜'; arrow.classList.add('arrow-left'); } else { arrow.innerText = '➜'; arrow.classList.add('arrow-right'); }
+                        wrapper.appendChild(arrow);
+                    }
+                    rowDiv.appendChild(wrapper);
+                });
+                container.appendChild(rowDiv);
+                if (rowIndex < rows.length - 1) {
+                    let connectorDiv = document.createElement('div'); connectorDiv.className = 'row-connector';
+                    let downArrow = document.createElement('div'); downArrow.className = 'arrow-icon arrow-down'; downArrow.innerText = '⬇';
+                    if (isReverse) connectorDiv.classList.add('left');
+                    connectorDiv.appendChild(downArrow); container.appendChild(connectorDiv);
+                }
+            });
+        }
+
+        function logout() { location.reload(); }
+        function exitQuiz() { if(confirm("確定要中止實驗，返回地圖嗎？")) goToLevelScreen(); }
+
+        function startQuiz(mode, levelNum) {
+            isMistakeMode = (mode === 'mistake');
+            isFavoriteMode = (mode === 'favorite'); 
+            userAnswers = {}; score = 0; currentQuestionIndex = 0;
+            
+            if (isMistakeMode) {
+                let mistakeIds = JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || [];
+                currentQuizQuestions = allQuestions.filter(q => mistakeIds.includes(q.id));
+                document.getElementById('level-title').innerText = "📕 實驗筆記";
+            } else if (isFavoriteMode) { 
+                let favIds = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
+                currentQuizQuestions = allQuestions.filter(q => favIds.includes(q.id));
+                document.getElementById('level-title').innerText = "⭐ 重點收藏";
+            } else {
+                currentLevel = levelNum;
+                let startIndex = 0; for (let i = 0; i < levelNum - 1; i++) { startIndex += LEVEL_CONFIG[i]; }
+                let endIndex = startIndex + LEVEL_CONFIG[levelNum - 1];
+                if (allQuestions.length < endIndex) { alert(`實驗器材準備中，請稍後再試。`); return; }
+                currentQuizQuestions = allQuestions.slice(startIndex, endIndex);
+                document.getElementById('level-title').innerText = `🔬 實驗 ${levelNum}`;
+            }
+            if (currentQuizQuestions.length === 0) { alert("目前無實驗項目！"); return; }
+            document.getElementById('level-screen').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'block';
+            document.getElementById('total-q-num').innerText = currentQuizQuestions.length;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQuestion = currentQuizQuestions[currentQuestionIndex];
+            let qContainer = document.getElementById('question-container');
+            qContainer.classList.remove('fade-in'); void qContainer.offsetWidth; qContainer.classList.add('fade-in');
+            let progress = ((currentQuestionIndex) / currentQuizQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + "%";
+            document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('question-text').innerText = currentQuestion.question;
+            document.getElementById('explanation').style.display = 'none'; 
+            document.getElementById('next-btn').style.display = 'none';
+            const imgElement = document.getElementById('question-image');
+            if (currentQuestion.image) { imgElement.src = currentQuestion.image; imgElement.style.display = 'block'; } else { imgElement.style.display = 'none'; }
+            const optionsList = document.getElementById('options-list'); optionsList.innerHTML = '';
+            currentQuestion.options.forEach(option => {
+                const li = document.createElement('li'); const button = document.createElement('button');
+                button.className = 'option-btn'; button.innerText = option;
+                button.onclick = () => checkAnswer(button, option, currentQuestion);
+                li.appendChild(button); optionsList.appendChild(li);
+            });
+            updateFavoriteUI(); 
+        }
+
+        function getFavoriteBank() { return JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || []; }
+        
+        function updateFavoriteButton() {
+            let favs = getFavoriteBank();
+            let btn = document.getElementById('btn-favorite');
+            if (favs.length > 0) { 
+                btn.style.display = 'inline-block'; 
+                document.getElementById('favorite-count').innerText = favs.length; 
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function toggleFavorite() {
+            const currentQ = currentQuizQuestions[currentQuestionIndex];
+            let favs = getFavoriteBank();
+            if (favs.includes(currentQ.id)) {
+                favs = favs.filter(id => id !== currentQ.id);
+            } else {
+                favs.push(currentQ.id);
+            }
+            localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(favs));
+            updateFavoriteUI();
+        }
+
+        function updateFavoriteUI() {
+            const currentQ = currentQuizQuestions[currentQuestionIndex];
+            let favs = getFavoriteBank();
+            let btn = document.getElementById('btn-toggle-favorite');
+            if (favs.includes(currentQ.id)) {
+                btn.innerText = '★'; 
+            } else {
+                btn.innerText = '☆'; 
+            }
+        }
+
+        function checkAnswer(btn, selectedOption, questionData) {
+            const buttons = document.querySelectorAll('.option-btn'); buttons.forEach(button => button.disabled = true); 
+            userAnswers[questionData.id] = selectedOption;
+            const selectedCode = selectedOption.substring(0, 3); const correctCode = questionData.answer.substring(0, 3);
+            if (selectedCode === correctCode) {
+                btn.classList.add('correct'); score++; audioCorrect.play().catch(e=>{});
+                confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 }, colors: ['#00c4cc', '#0056b3'] });
+                if (isMistakeMode) removeFromMistakeBank(questionData.id);
+            } else {
+                btn.classList.add('wrong'); audioFail.play().catch(e=>{});
+                buttons.forEach(button => { if (button.innerText.substring(0, 3) === correctCode) button.classList.add('correct'); });
+                addToMistakeBank(questionData.id);
+            }
+            document.getElementById('explanation-text').innerText = questionData.explanation || "暫無原理說明";
+            document.getElementById('explanation').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            let progress = ((currentQuestionIndex) / currentQuizQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + "%";
+            if (currentQuestionIndex < currentQuizQuestions.length) loadQuestion(); else setTimeout(showResult, 500);
+        }
+
+        function showResult() {
+            document.getElementById('quiz-content').style.display = 'none';
+            document.getElementById('score-box').style.display = 'block';
+            let finalScore = Math.round((score / currentQuizQuestions.length) * 100);
+            document.getElementById('final-score').innerText = finalScore;
+            document.getElementById('final-name').innerText = userName;
+            
+            let comment = "", progress = getProgress(), isPass = finalScore >= 70;
+            
+            if(finalScore === 100) comment = "🏆 諾貝爾獎等級！完美的實驗成果！"; 
+            else if(finalScore >= 90) comment = "🌟 首席科學家！實驗非常精準！"; 
+            else if(finalScore >= 70) comment = "🎉 實驗成功！數據符合預期！"; 
+            else comment = "💥 實驗失敗！請重新檢查步驟與原理！";
+            
+            document.getElementById('score-comment').innerText = comment;
+            let unlockMsg = document.getElementById('unlock-msg');
+            let newCardAlert = document.getElementById('new-card-alert');
+            let gotNewCard = false;
+
+            if (!isMistakeMode && !isFavoriteMode && isPass) {
+                if (finalScore >= 70) {
+                    let oldScore = progress.levelScores[currentLevel];
+                    if (oldScore === undefined || oldScore < 70) {
+                        gotNewCard = true;
+                    }
+                }
+                
+                if (currentLevel === progress.maxLevel && currentLevel < LEVEL_CONFIG.length) {
+                    unlockMsg.style.display = 'block'; 
+                } else unlockMsg.style.display = 'none';
+                
+                confetti({ particleCount: 200, spread: 150, colors: ['#00c4cc', '#0056b3', '#FFF'] });
+            } else {
+                unlockMsg.style.display = 'none';
+            }
+            
+            if(gotNewCard) newCardAlert.style.display = 'block'; else newCardAlert.style.display = 'none';
+
+            if (!isMistakeMode && !isFavoriteMode) saveProgress(currentLevel, finalScore);
+            
+            let modeName = `實驗 ${currentLevel}`;
+            if(isMistakeMode) modeName = "實驗筆記";
+            if(isFavoriteMode) modeName = "重點收藏";
+            
+            saveHistory(userName, finalScore, currentQuizQuestions, userAnswers, modeName);
+            renderReviewList('review-list', currentQuizQuestions, userAnswers);
+        }
+
+        function showCollection() {
+            document.querySelectorAll('.quiz-container > div').forEach(el => el.style.display = 'none');
+            document.getElementById('collection-screen').style.display = 'block';
+            renderCollectionGrid();
+        }
+
+        function renderCollectionGrid() {
+            const grid = document.getElementById('collection-grid'); grid.innerHTML = "";
+            const progress = getProgress();
+            for (let i = 1; i <= LEVEL_CONFIG.length; i++) {
+                let bestScore = progress.levelScores[i];
+                let isUnlocked = (bestScore !== undefined && bestScore >= 70);
+                let numStr = i < 10 ? `0${i}` : `${i}`;
+                let imgSrc = `images/card_${numStr}.jpg`;
+                let cardItem = document.createElement('div');
+                
+                if (isUnlocked) {
+                    cardItem.className = 'card-item';
+                    cardItem.innerHTML = `<img src="${imgSrc}" class="card-img" onerror="this.style.display='none'">`;
+                    cardItem.onclick = () => openCardModal(imgSrc, `實驗 ${i} 發現元素`);
+                } else {
+                    cardItem.className = 'card-item locked';
+                    cardItem.innerHTML = `
+                        <img src="${imgSrc}" class="card-img" onerror="this.style.display='none'">
+                        <div class="card-overlay">
+                            <div class="card-lock-icon">🔒</div>
+                            <div class="card-label">實驗 ${i}</div>
+                        </div>
+                    `;
+                }
+                grid.appendChild(cardItem);
+            }
+        }
+
+        function openCardModal(src, title) {
+            document.getElementById('modal-img').src = src;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('card-modal').style.display = 'flex';
+        }
+        function closeCardModal() { document.getElementById('card-modal').style.display = 'none'; }
+
+        function getMistakeBank() { return JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || []; }
+        function updateMistakeButton() {
+            let mistakes = getMistakeBank();
+            let btn = document.getElementById('btn-mistake');
+            if (mistakes.length > 0) { btn.style.display = 'inline-block'; document.getElementById('mistake-count').innerText = mistakes.length; } 
+            else btn.style.display = 'none';
+        }
+        function addToMistakeBank(id) {
+            let mistakes = getMistakeBank();
+            if (!mistakes.includes(id)) { mistakes.push(id); localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(mistakes)); }
+        }
+        function removeFromMistakeBank(id) {
+            let mistakes = getMistakeBank();
+            mistakes = mistakes.filter(mId => mId !== id);
+            localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(mistakes));
+        }
+        function toggleReview() {
+            let reviewArea = document.getElementById('full-review-area');
+            reviewArea.style.display = (reviewArea.style.display === 'none') ? 'block' : 'none';
+            if (reviewArea.style.display === 'block') reviewArea.scrollIntoView({ behavior: 'smooth' });
+        }
+        function renderReviewList(elementId, questionsData, answersData) {
+            let list = document.getElementById(elementId); list.innerHTML = "";
+            questionsData.forEach((q, index) => {
+                let userAns = answersData[q.id], correctAns = q.answer;
+                let isRight = (userAns && userAns.substring(0,3) === correctAns.substring(0,3));
+                let tagClass = isRight ? "tag-correct" : "tag-wrong", tagText = isRight ? "正確" : "錯誤";
+                let html = `<li class="review-item"><div style="font-weight:bold; margin-bottom:10px;"><span class="tag ${tagClass}">${tagText}</span> ${index + 1}. ${q.question}</div>`;
+                if (q.image) html += `<img src="${q.image}" style="max-height:150px; display:block; margin:10px 0;">`;
+                html += `<div style="font-size:0.9em; color:#555;">你的數據：${userAns || "未紀錄"} <br> 標準數值：<span style="color:var(--correct-color); font-weight:bold;">${correctAns}</span></div><div style="margin-top:5px; background:#fff; padding:8px; border-radius:5px; font-size:0.9em; color:#34495e; border:1px dashed #bdc3c7;">💡 ${q.explanation || "暫無原理說明"}</div></li>`;
+                list.innerHTML += html;
+            });
+        }
+        function saveHistory(name, score, questionsData, answersData, modeName) {
+            let history = JSON.parse(localStorage.getItem(getUserKey('quizHistory'))) || [];
+            let record = { id: Date.now(), name: name, score: score, date: new Date().toLocaleString(), mode: modeName, answers: answersData, questionIds: questionsData.map(q => q.id) };
+            history.push(record); localStorage.setItem(getUserKey('quizHistory'), JSON.stringify(history));
+        }
+        function showHistory() {
+            document.querySelectorAll('.quiz-container > div').forEach(el => el.style.display = 'none');
+            document.getElementById('history-screen').style.display = 'block';
+            let history = JSON.parse(localStorage.getItem(getUserKey('quizHistory'))) || [];
+            let list = document.getElementById('history-list'); list.innerHTML = "";
+            if(history.length === 0) list.innerHTML = "<li style='justify-content:center'>尚無實驗紀錄</li>";
+            else {
+                history.reverse().forEach(rec => {
+                    let li = document.createElement('li');
+                    li.innerHTML = `<div class="history-info"><strong>${rec.mode}</strong> - <span style="color:${rec.score>=70?'var(--correct-color)':'var(--wrong-color)'}">${rec.score}分</span><br><small style="color:gray">${rec.date}</small></div><div class="history-actions"><button class="btn btn-green btn-sm" onclick="replayHistory(${rec.id})">檢視</button><button class="btn btn-red btn-sm" onclick="deleteHistoryItem(${rec.id})">刪除</button></div>`;
+                    list.appendChild(li);
+                });
+            }
+        }
+        function deleteHistoryItem(id) {
+            if(!confirm("確定要刪除這筆實驗紀錄嗎？")) return;
+            let history = JSON.parse(localStorage.getItem(getUserKey('quizHistory'))) || [];
+            history = history.filter(r => r.id !== id);
+            localStorage.setItem(getUserKey('quizHistory'), JSON.stringify(history));
+            showHistory();
+        }
+        function replayHistory(recordId) {
+            let history = JSON.parse(localStorage.getItem(getUserKey('quizHistory'))) || [];
+            let record = history.find(r => r.id === recordId);
+            if (!record) return;
+            document.querySelectorAll('.quiz-container > div').forEach(el => el.style.display = 'none');
+            document.getElementById('history-detail-screen').style.display = 'block';
+            document.getElementById('history-date').innerText = record.date;
+            document.getElementById('history-score').innerText = record.score;
+            let examQuestions = allQuestions.filter(q => record.questionIds.includes(q.id));
+            renderReviewList('history-review-list', examQuestions, record.answers);
+        }
+        
+        window.onload = function() {
+            updateMusicUI();
+        };
+    </script>
+</body>
+</html>
