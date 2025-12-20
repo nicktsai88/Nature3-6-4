@@ -9,7 +9,7 @@
             "(D) 通常具有相近的化學性質"
         ],
         "answer": "(D)",
-        "image": "images/q01.jpg",
+        "image": "",
         "explanation": "詳解：同族元素價電子數相同，故具有相似的化學性質。"
     },
     {
@@ -22,7 +22,7 @@
             "(D) 惰性氣體"
         ],
         "answer": "(A)",
-        "image": "images/q02.jpg",
+        "image": "",
         "explanation": "詳解：(甲)鹼金屬可與水發生激烈反應產生氫氣與鹼性物質；(乙)金屬皆可導電。故選(A)。"
     },
     {
@@ -35,7 +35,7 @@
             "(D) Au、Ar"
         ],
         "answer": "(A)",
-        "image": "images/q03.jpg",
+        "image": "",
         "explanation": "詳解：週期表中，越左下方的金屬活性越大(鉀K)，越右上方的非金屬活性越大(氟F)。"
     },
     {
@@ -48,7 +48,7 @@
             "(D) Na"
         ],
         "answer": "(C)",
-        "image": "images/q04.jpg",
+        "image": "",
         "explanation": "詳解：鎂(Mg)與鈣(Ca)皆屬於第2族(鹼土金屬)。"
     },
     {
@@ -61,7 +61,7 @@
             "(D) 現在所使用的週期表是依據各元素的質量數由小到大排列而成的"
         ],
         "answer": "(C)",
-        "image": "images/q05.jpg",
+        "image": "",
         "explanation": "詳解：(A)橫列為「週期」；(B)縱欄為「族」；(D)依據「原子序」排列。"
     },
     {
@@ -87,7 +87,7 @@
             "(D) 鈍氣"
         ],
         "answer": "(A)",
-        "image": "images/q07.jpg",
+        "image": "",
         "explanation": "詳解：與水反應激烈且產生鹼性溶液者為第1族鹼金屬元素。"
     },
     {
@@ -100,7 +100,7 @@
             "(D) 元素的比熱大小"
         ],
         "answer": "(B)",
-        "image": "images/q08.jpg",
+        "image": "",
         "explanation": "詳解：現代週期表依元素的原子序(質子數)從小到大排列，反映元素內部結構。"
     },
     {
@@ -113,7 +113,7 @@
             "(D) 硫"
         ],
         "answer": "(A)",
-        "image": "images/q09.jpg",
+        "image": "",
         "explanation": "詳解：氟(F)是電負度最大、最活潑的非金屬元素。"
     },
     {
@@ -126,7 +126,7 @@
             "(D) 與水反應後會產生酸性物質"
         ],
         "answer": "(D)",
-        "image": "images/q10.jpg",
+        "image": "",
         "explanation": "詳解：(D)鹼金屬與水反應產生氫氧化物，水溶液呈「鹼性」。"
     },
     {
@@ -139,7 +139,7 @@
             "(D) 週期表中的元素,未來可能繼續增加"
         ],
         "answer": "(B)",
-        "image": "images/q11.jpg",
+        "image": "",
         "explanation": "詳解：(B)現代週期表是依據「原子序」由小到大排列而成。"
     },
     {
@@ -152,7 +152,7 @@
             "(D) 鈍氣"
         ],
         "answer": "(B)",
-        "image": "images/q12.jpg",
+        "image": "",
         "explanation": "詳解：第2族元素稱為鹼土金屬。"
     },
     {
@@ -165,7 +165,7 @@
             "(D) 溴、碘、氟"
         ],
         "answer": "(D)",
-        "image": "images/q13.jpg",
+        "image": "",
         "explanation": "詳解：(D)氟、氯、溴、碘皆為第17族鹵素，化學性質相似。"
     },
     {
@@ -178,7 +178,7 @@
             "(D) 原子量由大而小"
         ],
         "answer": "(C)",
-        "image": "images/q14.jpg",
+        "image": "",
         "explanation": "詳解：門得列夫當時尚未發現質子(原子序)，他是依據「原子量」由小而大排列。"
     },
     {
@@ -191,7 +191,7 @@
             "(D) 一般而言,鈉都存放在酒精中"
         ],
         "answer": "(C)",
-        "image": "images/q15.jpg",
+        "image": "",
         "explanation": "詳解：(A)鈉密度大於油，會沉入；(B)質軟可用刀切；(D)會與酒精反應，應存於礦物油中。"
     },
     {
@@ -204,7 +204,7 @@
             "(D) 氧化性強弱"
         ],
         "answer": "(C)",
-        "image": "images/q16.jpg",
+        "image": "",
         "explanation": "詳解：現代週期表以原子序(質子數)大小為排列依據。"
     },
     {
@@ -230,7 +230,7 @@
             "(D) 同族的元素,其化學性質相似"
         ],
         "answer": "(D)",
-        "image": "images/q18.jpg",
+        "image": "",
         "explanation": "詳解：(A)18族；(B)7週期；(C)同「族」元素化學性質相似。"
     },
     {
@@ -243,7 +243,7 @@
             "(D) 第18族,鈍氣"
         ],
         "answer": "(A)",
-        "image": "images/q19.jpg",
+        "image": "",
         "explanation": "詳解：可與水激烈反應並產生鹼性溶液的是第1族鹼金屬元素。"
     },
     {
@@ -256,7 +256,7 @@
             "(D) 鈉、鉀"
         ],
         "answer": "(D)",
-        "image": "images/q20.jpg",
+        "image": "",
         "explanation": "詳解：鈉(Na)與鉀(K)同屬第1族鹼金屬。"
     },
     {
@@ -269,7 +269,7 @@
             "(D) 顏色"
         ],
         "answer": "(B)",
-        "image": "images/q21.jpg",
+        "image": "",
         "explanation": "詳解：週期表將化學性質相似的元素歸類在同一族。"
     },
     {
@@ -295,7 +295,7 @@
             "(D) 氟、氯、溴"
         ],
         "answer": "(D)",
-        "image": "images/q23.jpg",
+        "image": "",
         "explanation": "詳解：(D)氟、氯、溴同屬第17族鹵素，性質最相似。"
     },
     {
@@ -321,7 +321,7 @@
             "(D) 銅"
         ],
         "answer": "(C)",
-        "image": "images/q25.jpg",
+        "image": "",
         "explanation": "詳解：鈣(Ca)與鋇(Ba)同屬第2族鹼土金屬。"
     },
     {
@@ -334,7 +334,7 @@
             "(D) 鈉、鈹"
         ],
         "answer": "(C)",
-        "image": "images/q26.jpg",
+        "image": "",
         "explanation": "詳解：鈹(Be)與鎂(Mg)同屬第2族，具有相似的化學性質。"
     },
     {
@@ -347,7 +347,7 @@
             "(D) K"
         ],
         "answer": "(C)",
-        "image": "images/q27.jpg",
+        "image": "",
         "explanation": "詳解：鋰、鈉、鉀為鹼金屬，活性大需存於礦物油中；銅(Cu)活性小，一般保存即可。"
     },
     {
@@ -360,7 +360,7 @@
             "(D) 電子數"
         ],
         "answer": "(A)",
-        "image": "images/q28.jpg",
+        "image": "",
         "explanation": "詳解：現代週期表依「原子序」(質子數)大小排列。"
     },
     {
@@ -373,7 +373,7 @@
             "(D) 顏色"
         ],
         "answer": "(B)",
-        "image": "images/q29.jpg",
+        "image": "",
         "explanation": "詳解：元素依「化學性質」(由價電子數決定)分類於同一族。"
     },
     {
@@ -386,7 +386,7 @@
             "(D) 鈉的性質不活潑,不容易與空氣中的氧反應而失去光澤"
         ],
         "answer": "(D)",
-        "image": "images/q30.jpg",
+        "image": "",
         "explanation": "詳解：(D)鈉的活性極大，極易與空氣中的氧反應氧化而失去光澤。"
     },
     {
@@ -399,7 +399,7 @@
             "(D) 鹼金屬嚐起來是鹼的"
         ],
         "answer": "(A)",
-        "image": "images/q31.jpg",
+        "image": "",
         "explanation": "詳解：因為它們與水反應會生成強鹼性的氫氧化物，故稱鹼金屬。"
     },
     {
@@ -412,7 +412,7 @@
             "(D) 在常溫或高溫下不易與金屬產生反應"
         ],
         "answer": "(C)",
-        "image": "images/q32.jpg",
+        "image": "",
         "explanation": "詳解：(C)氮氣(N2)與氫氣(H2)並非鈍氣；鈍氣指氦、氖、氬、氪、氙、氡。"
     },
     {
@@ -425,7 +425,7 @@
             "(D) 氫氧化鋁"
         ],
         "answer": "(C)",
-        "image": "images/q33.jpg",
+        "image": "",
         "explanation": "詳解：金屬遇水劇烈反應且產生鹼性(試紙變藍)溶液，該金屬為鹼金屬(如鉀)，產物為氫氧化鉀。"
     },
     {
@@ -451,7 +451,7 @@
             "(D) 週期表中的元素,未來可能繼續增加"
         ],
         "answer": "(B)",
-        "image": "images/q35.jpg",
+        "image": "",
         "explanation": "詳解：(B)週期表左下方主要是「金屬」元素，非金屬多在右上方。"
     },
     {
@@ -464,7 +464,7 @@
             "(D) 海水"
         ],
         "answer": "(C)",
-        "image": "images/q36.jpg",
+        "image": "",
         "explanation": "詳解：鈉活性極大且與水反應，故需隔絕空氣與水，儲存於不含氧的礦物油(或煤油)中。"
     },
     {
@@ -477,7 +477,7 @@
             "(D) 同族的元素,其化學性質相似"
         ],
         "answer": "(D)",
-        "image": "images/q37.jpg",
+        "image": "",
         "explanation": "詳解：正確敘述為：18族、7週期、同「族」元素化學性質相似。"
     },
     {
@@ -490,7 +490,7 @@
             "(D) 甲乙丙"
         ],
         "answer": "(A)",
-        "image": "images/q38.jpg",
+        "image": "",
         "explanation": "詳解：氦氣密度小(比空氣輕)可升空(甲)，且為鈍氣極不活潑(丙)，遇火不爆炸，故安全。"
     },
     {
