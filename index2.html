@@ -153,6 +153,10 @@
             padding-top: 20px; border-top: 1px solid #ddd;
         }
         
+        /* Resume Button Styling */
+        .resume-btn-area { width: 100%; text-align: center; margin-top: 10px; margin-bottom: 10px; display: none; }
+        .btn-resume { background: #f39c12; color: white; font-size: 0.9em; padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer; animation: pulse 2s infinite;}
+
         /* --- Button Styles --- */
         .btn { padding: 10px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: #fff; background: var(--primary-color); display: inline-flex; align-items: center; gap: 5px;}
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.15); }
@@ -161,7 +165,6 @@
         .btn-pink { background: var(--favorite-color); } .btn-pink:hover { background: #be2edd; }
         .btn-gray { background: #95a5a6; } .btn-gray:hover { background: #7f8c8d; }
         .btn-blue { background: #3498db; } .btn-blue:hover { background: #2980b9; }
-        .btn-orange { background: #f39c12; } .btn-orange:hover { background: #e67e22; }
 
         /* --- Standard Quiz Mode (Single Question) --- */
         .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -311,6 +314,9 @@
             <!-- 左側：標準實驗區 -->
             <div class="dashboard-std-zone">
                 <div class="dashboard-title">🧪 標準實驗模式</div>
+                <div class="resume-btn-area" id="std-resume-area">
+                    <button class="btn-resume" onclick="resumeStandardQuiz()">↪️ 繼續上次的實驗</button>
+                </div>
                 <div id="level-grid" class="level-grid"></div>
             </div>
 
@@ -338,7 +344,6 @@
             <h3 id="level-title" style="margin:0; color:var(--primary-color);">實驗 X</h3>
             <div style="display:flex; gap:10px;">
                 <button id="std-fav-btn" class="btn btn-sm" style="background:#fff; border:2px solid var(--favorite-color); color:var(--favorite-color); padding: 5px 10px;" onclick="toggleStandardFavorite()">☆</button>
-                <button class="btn btn-orange btn-sm" style="padding: 5px 10px;" onclick="restartQuiz()">🔄 重新開始</button>
                 <button class="btn btn-gray btn-sm" style="padding: 5px 10px;" onclick="exitQuiz()">🏠 離開</button>
             </div>
         </div>
@@ -375,10 +380,7 @@
                 已答: <span id="wf-answered" style="color:var(--primary-color)">0</span> / <span id="wf-total">0</span>
                 &nbsp;|&nbsp; 得分: <span id="wf-score" style="color:var(--correct-color)">0</span>
             </div>
-            <div style="display:flex; gap: 5px;">
-                <button class="btn btn-orange btn-sm" onclick="restartQuiz()">🔄 重新開始</button>
-                <button class="btn btn-gray btn-sm" onclick="exitQuiz()">🏠 結束</button>
-            </div>
+            <button class="btn btn-gray btn-sm" onclick="exitQuiz()">🏠 結束</button>
         </div>
         
         <div id="waterfall-list">
@@ -522,6 +524,7 @@
             
             renderLevelGrid();
             updateDashboardTools();
+            checkStandardResume();
         }
 
         function hideAllScreens() {
@@ -555,45 +558,46 @@
             });
         }
 
-        function startStandardQuiz(level, forceNew = false) {
-            const savedKey = getUserKey('standardProgress');
-            if(!forceNew) {
-                const saved = JSON.parse(localStorage.getItem(savedKey));
-                if(saved && saved.level === level) {
-                     // 自動恢復進度
-                     quizState = saved;
-                     currentQuizData = allQuestions.filter(q => quizState.qIds.includes(q.id));
-                     loadStandardUI();
-                     return;
-                }
+        function checkStandardResume() {
+            const saved = localStorage.getItem(getUserKey('standardProgress'));
+            document.getElementById('std-resume-area').style.display = saved ? 'block' : 'none';
+        }
+
+        function resumeStandardQuiz() {
+            const saved = JSON.parse(localStorage.getItem(getUserKey('standardProgress')));
+            if(saved) {
+                quizState = saved;
+                quizState.mode = 'standard';
+                startStandardQuiz(quizState.level, true);
             }
-            
-            // 開始新測驗 (或覆蓋舊的)
-            let startIdx = 0;
-            for(let i=0; i<level-1; i++) startIdx += LEVEL_CONFIG[i];
-            let endIdx = startIdx + LEVEL_CONFIG[level-1];
-            
-            quizState = {
-                mode: 'standard',
-                level: level,
-                score: 0,
-                currentIndex: 0,
-                answers: {},
-                locked: {},
-                qIds: allQuestions.slice(startIdx, endIdx).map(q => q.id)
-            };
+        }
+
+        function startStandardQuiz(level, isResume = false) {
+            if(!isResume) {
+                // Check if old save exists and warn? User clicked specific level, so overwrite.
+                let startIdx = 0;
+                for(let i=0; i<level-1; i++) startIdx += LEVEL_CONFIG[i];
+                let endIdx = startIdx + LEVEL_CONFIG[level-1];
+                
+                quizState = {
+                    mode: 'standard',
+                    level: level,
+                    score: 0,
+                    currentIndex: 0,
+                    answers: {},
+                    locked: {},
+                    qIds: allQuestions.slice(startIdx, endIdx).map(q => q.id)
+                };
+            }
             
             currentQuizData = allQuestions.filter(q => quizState.qIds.includes(q.id));
             if(currentQuizData.length === 0) return alert('無題目數據');
             
-            loadStandardUI();
-        }
-
-        function loadStandardUI() {
             hideAllScreens();
             document.getElementById('quiz-content').style.display = 'block';
             document.getElementById('level-title').innerText = `🔬 實驗 ${quizState.level}`;
             document.getElementById('total-q-num').innerText = currentQuizData.length;
+            
             loadStandardQuestion();
         }
 
@@ -603,6 +607,7 @@
             
             // Auto Save
             localStorage.setItem(getUserKey('standardProgress'), JSON.stringify(quizState));
+            checkStandardResume(); // Update dashboard button visibility if logic allows
 
             document.getElementById('current-q-num').innerText = quizState.currentIndex + 1;
             document.getElementById('progress-bar').style.width = ((quizState.currentIndex) / currentQuizData.length * 100) + '%';
@@ -707,15 +712,18 @@
         }
 
         // --- 瀑布流刷題模式 (Waterfall Mode) ---
-        function startWaterfallQuiz(mode, forceNew = false) {
+        function startWaterfallQuiz(mode) {
+            // Check Resume
             const savedKey = getUserKey('waterfallProgress');
-            if(!forceNew) {
-                const saved = JSON.parse(localStorage.getItem(savedKey));
-                // 自動恢復進度
-                if(saved && saved.mode === mode) {
+            const saved = JSON.parse(localStorage.getItem(savedKey));
+            
+            if(saved && saved.mode === mode) {
+                if(confirm("檢測到上次未完成的刷題進度，是否繼續？")) {
                     quizState = saved;
                     renderWaterfallUI();
                     return;
+                } else {
+                    localStorage.removeItem(savedKey);
                 }
             }
 
@@ -757,6 +765,10 @@
             
             // Use stored order
             const questions = allQuestions.filter(q => quizState.qIds.includes(q.id));
+            // Keep original sort order if speed mode, otherwise current list order
+            if(quizState.mode === 'speed') {
+                 // Sort by ID index in allQuestions if needed, but filter keeps order usually
+            }
 
             questions.forEach((q, idx) => {
                 const card = document.createElement('div');
@@ -778,6 +790,8 @@
                 let imgHtml = q.image ? `<img src="${q.image}" class="wf-img">` : '';
                 
                 // Question Text (Remove "1. 1." duplicates logic)
+                // Assuming json question text contains numbering, we just display it.
+                // Or if we want a badge:
                 let qTextHtml = `<div class="wf-question-text"><span class="wf-q-badge">#${idx+1}</span>${q.question}</div>`;
 
                 // Options
@@ -967,19 +981,6 @@
             }
         }
 
-        function restartQuiz() {
-            if (!confirm("確定要重新開始嗎？所有進度將被清除！")) return;
-            if (!confirm("再次確認：清除後無法復原，確定重新開始？")) return;
-
-            if (quizState.mode === 'standard') {
-                localStorage.removeItem(getUserKey('standardProgress'));
-                startStandardQuiz(quizState.level, true); // forceNew = true
-            } else {
-                localStorage.removeItem(getUserKey('waterfallProgress'));
-                startWaterfallQuiz(quizState.mode, true); // forceNew = true
-            }
-        }
-
         function saveHistory(score, modeTitle) {
             let history = JSON.parse(localStorage.getItem(getUserKey('quizHistory'))) || [];
             history.push({
@@ -1009,6 +1010,12 @@
             const grid = document.getElementById('collection-grid');
             grid.innerHTML = "";
             const progress = JSON.parse(localStorage.getItem(getUserKey('quizProgress'))) || { levelScores: {} }; // bug fix: renamed scores to match
+            
+            // Standardize score structure reading:
+            // Check standardize function above: I used progress.scores[level] there. 
+            // In original code it was levelScores. Let's fix save function to be consistent. 
+            // Actually, I rewrote save logic to use "scores". 
+            // Let's ensure compatibility or reset.
             
             const scores = progress.scores || {};
 
