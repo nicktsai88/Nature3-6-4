@@ -508,11 +508,7 @@
             localStorage.removeItem(APP_PREFIX + name + '_quizHistory');
             localStorage.removeItem(APP_PREFIX + name + '_quizProgress');
             localStorage.removeItem(APP_PREFIX + name + '_standardProgress');
-            // 移除所有模式的瀑布流進度
-            localStorage.removeItem(APP_PREFIX + name + '_waterfallProgress_speed');
-            localStorage.removeItem(APP_PREFIX + name + '_waterfallProgress_mistake');
-            localStorage.removeItem(APP_PREFIX + name + '_waterfallProgress_favorite');
-            
+            localStorage.removeItem(APP_PREFIX + name + '_waterfallProgress');
             let users = JSON.parse(localStorage.getItem(APP_PREFIX+'savedUsers')) || [];
             localStorage.setItem(APP_PREFIX+'savedUsers', JSON.stringify(users.filter(u => u.name !== name)));
             renderQuickLogin();
@@ -712,13 +708,11 @@
 
         // --- 瀑布流刷題模式 (Waterfall Mode) ---
         function startWaterfallQuiz(mode, forceNew = false) {
-            // FIX: 使用加上模式後綴的鍵值，避免互相覆蓋
-            const savedKey = getUserKey('waterfallProgress_' + mode);
-            
+            const savedKey = getUserKey('waterfallProgress');
             if(!forceNew) {
                 const saved = JSON.parse(localStorage.getItem(savedKey));
-                // 自動恢復進度 (只要有存檔就載入，因為 Key 已經區分開了)
-                if(saved) {
+                // 自動恢復進度
+                if(saved && saved.mode === mode) {
                     quizState = saved;
                     renderWaterfallUI();
                     return;
@@ -836,8 +830,8 @@
                 addToMistake(qId);
             }
             
-            // Save Progress (FIX: Use mode-specific key)
-            localStorage.setItem(getUserKey('waterfallProgress_' + quizState.mode), JSON.stringify(quizState));
+            // Save Progress
+            localStorage.setItem(getUserKey('waterfallProgress'), JSON.stringify(quizState));
             
             // Update UI (Single Card)
             updateWaterfallStats();
@@ -932,9 +926,6 @@
             const card = document.getElementById(`card-${id}`);
             if(card) card.remove();
             
-            // FIX: Ensure this deletion is saved to current progress so it doesn't reappear on resume
-            localStorage.setItem(getUserKey('waterfallProgress_' + quizState.mode), JSON.stringify(quizState));
-            
             // Update stats
             updateWaterfallStats();
             updateDashboardTools();
@@ -984,8 +975,7 @@
                 localStorage.removeItem(getUserKey('standardProgress'));
                 startStandardQuiz(quizState.level, true); // forceNew = true
             } else {
-                // FIX: Use mode-specific key
-                localStorage.removeItem(getUserKey('waterfallProgress_' + quizState.mode));
+                localStorage.removeItem(getUserKey('waterfallProgress'));
                 startWaterfallQuiz(quizState.mode, true); // forceNew = true
             }
         }
